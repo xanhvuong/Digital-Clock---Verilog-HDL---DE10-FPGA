@@ -19,7 +19,8 @@
 
 ---
 
-## 💻 Software- **IDE**: Quartus Prime 18.1   
+## 💻 Software- 
+- **IDE**: Quartus Prime 18.1   
 - **Language**: Verilog HDL.  
 
 
