@@ -1,0 +1,85 @@
+// A counter and comparator
+
+module DigitalClock(
+    input CLOCK_50, 
+    input [1:0] KEY, 
+    output [0:6] HEX0, 
+    output [0:6] HEX1, 
+    output [0:6] HEX2, 
+    output [0:6] HEX3
+);
+    reg [25:0] counter, led;
+    reg [3:0] second1, second10, minute1, minute10;
+    reg flag, KEY0, KEY1;
+    
+    initial led = 26'd50000000;
+    
+    always @(posedge CLOCK_50)
+    begin
+        KEY0 <= KEY[0];
+        KEY1 <= KEY[1];
+        
+        // Reset when KEY0 is pressed
+        if (KEY0 && ~KEY[0])
+        begin
+            second1 <= 4'b0;
+            second10 <= 4'b0;
+            minute1 <= 4'b0;
+            minute10 <= 4'b0;
+        end
+        
+        // Pause/Continue toggle when KEY1 is pressed
+        if (KEY1 && ~KEY[1])
+        begin
+            if (flag) flag <= 1'b0;
+            else flag <= 1'b1;
+        end
+        
+        if (counter >= led)
+        begin
+            counter <= 26'b0;
+            if (flag)
+            begin
+                if (second1 == 4'b1001)
+                begin
+                    if (second10 == 4'b0101)
+                    begin
+                        if (minute1 == 4'b1001)
+                        begin
+                            if (minute10 == 4'b0101)
+                                minute10 <= 4'b0;
+                            else
+                                minute10 <= minute10 + 1'b1;
+                            minute1 <= 4'b0;
+                        end
+                        
+                        else
+                            minute1 <= minute1 + 1'b1;
+                        second10 <= 4'b0;    
+                    end
+                        
+                    else
+                        second10 <= second10 + 1'b1;
+                    
+                    second1 <= 4'b0;
+                end
+                
+                else
+                    second1 <= second1 + 1'b1;
+            end
+        end
+        
+        else
+            counter <= counter + 1'b1;
+    end
+    
+// Call the separated module HEX_display 
+	
+    HEX_display a0(.a(second1), .b(HEX0));
+    HEX_display a1(.a(second10), .b(HEX1));
+    HEX_display a2(.a(minute1), .b(HEX2));
+    HEX_display a3(.a(minute10), .b(HEX3));
+    
+endmodule
+
+
